@@ -250,10 +250,31 @@ class QuestionsScreenState extends State<QuestionsScreen> {
 
     try {
       await store.sendAnswers();
+      setState(() {
+        isSending = false;
+      });
+      await showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+                actions: <Widget>[
+                  FlatButton(
+                    textColor: AppColors.MAIN_COLOR,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Закрыть'),
+                  )
+                ],
+                title: Center(
+                  child: Text(
+                    'Спасибо за прохождение опроса!',
+                    style: TextStyle(fontWeight: FontWeight.w300),
+                  ),
+                ),
+              ));
       Navigator.of(context).pop();
     } catch (e) {
       print(e);
-    } finally {
       setState(() {
         isSending = false;
       });

@@ -60,10 +60,14 @@ class DetailedAppointmentScreenState extends State<DetailedAppointmentScreen> {
     );
   }
 
-  Widget buildButton() {
+  Widget buildConfirmButton() {
     Store store = ScopedModel.of<Store>(context);
 
     if (store.detailedAppointment.isConfirmedByUser) {
+      return null;
+    }
+
+    if (store.detailedAppointment.isFinishedByDoctor) {
       return null;
     }
 
@@ -82,6 +86,34 @@ class DetailedAppointmentScreenState extends State<DetailedAppointmentScreen> {
     );
   }
 
+  Widget buildPollButton() {
+    Store store = ScopedModel.of<Store>(context);
+
+    if (!store.detailedAppointment.isFinishedByDoctor) {
+      return null;
+    }
+
+    if (store.detailedAppointment.isPollFinishedByUser) {
+      return null;
+    }
+
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          BigButton(
+            text: 'Пройти опрос',
+            onTap: () {
+              Navigator.of(context).pushNamed(Routes.QUESTIONS);
+            },
+            isLoading: false,
+          ),
+        ],
+      ),
+    );
+  }
+
   onConfirm() async {
     Store store = ScopedModel.of<Store>(context);
 
@@ -94,7 +126,7 @@ class DetailedAppointmentScreenState extends State<DetailedAppointmentScreen> {
     try {
       await store.confirm();
 
-      Future.delayed(Duration(seconds: 2), () {
+      Future.delayed(Duration(seconds: 2), () async {
         String title = 'Пройдите опрос по приему';
         var appointment = store.detailedAppointment;
 
@@ -102,10 +134,8 @@ class DetailedAppointmentScreenState extends State<DetailedAppointmentScreen> {
 
         store.sendPush(title, body, appointment.id.toString(),
             (String payload) async {
-          print(payload);
           store.onAppointmentSelect(appointment);
-          await navigatorKey.currentState.pushNamed(Routes.QUESTIONS);
-          navigatorKey.currentState.pop();
+          navigatorKey.currentState.pushNamed(Routes.QUESTIONS);
         });
       });
     } catch (e) {
@@ -119,6 +149,8 @@ class DetailedAppointmentScreenState extends State<DetailedAppointmentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ScopedModel.of<Store>(context, rebuildOnChange: true);
+
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -138,9 +170,11 @@ class DetailedAppointmentScreenState extends State<DetailedAppointmentScreen> {
             padding: EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[buildInfo(), buildButton()]
-                  .where((widget) => widget != null)
-                  .toList(),
+              children: <Widget>[
+                buildInfo(),
+                buildConfirmButton(),
+                buildPollButton()
+              ].where((widget) => widget != null).toList(),
             )));
   }
 }

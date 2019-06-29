@@ -48,7 +48,7 @@ class ProfileScreenState extends State<ProfileScreen> {
             margin: EdgeInsets.only(bottom: 10),
             child: Text(
               key,
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+              style: TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
           Input(

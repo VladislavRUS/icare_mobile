@@ -9,7 +9,7 @@ import 'models/question.dart';
 import 'models/specialization.dart';
 import 'models/user.dart';
 
-var baseUrl = 'http://10.12.16.175:3000';
+var baseUrl = 'http://192.168.0.189:3000';
 
 class Store extends Model {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -35,7 +35,7 @@ class Store extends Model {
 
   Store() {
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
-    var android = new AndroidInitializationSettings('ic_launcher');
+    var android = new AndroidInitializationSettings('favicon');
     var ios = new IOSInitializationSettings();
     initializationSettings = new InitializationSettings(android, ios);
     selectedTimeSlot = timeSlots[0];
@@ -164,6 +164,24 @@ class Store extends Model {
     detailedAppointment.isConfirmedByUser = true;
 
     notifyListeners();
+
+    Future.delayed(Duration(seconds: 2), () {
+      finish(detailedAppointment.id);
+    });
+  }
+
+  finish(int appointmentId) async {
+    String url = baseUrl +
+        '/api/v1/appointments/' +
+        appointmentId.toString() +
+        '/finish';
+    await Requests.post(url);
+
+    appointments.firstWhere((appointment) {
+      return appointment.id == appointmentId;
+    }).isFinishedByDoctor = true;
+
+    notifyListeners();
   }
 
   fetchQuestions() async {
@@ -196,7 +214,8 @@ class Store extends Model {
   }
 
   sendAnswers() async {
-    String url = baseUrl + '/api/v1/answers';
+    String url =
+        baseUrl + '/api/v1/answers?appointmentId=${detailedAppointment.id}';
 
     var body = [];
 
@@ -210,5 +229,8 @@ class Store extends Model {
     });
 
     await Requests.post(url, body: body, json: true);
+
+    detailedAppointment.isPollFinishedByUser = true;
+    notifyListeners();
   }
 }

@@ -61,62 +61,103 @@ class AppointmentsScreenState extends State<AppointmentsScreen> {
     init();
   }
 
-  Widget buildList() {
+  List<Widget> buildList() {
     Store store = ScopedModel.of<Store>(context);
 
-    return ListView.builder(
-        itemCount: store.appointments.length,
-        itemBuilder: (context, index) {
-          Appointment appointment = store.appointments[index];
+    List<Appointment> activeAppointments = [];
+    List<Appointment> finishedAppointments = [];
 
-          return Container(
-            margin: EdgeInsets.only(
-                top: 10,
-                bottom: index == store.appointments.length - 1 ? 10 : 0),
-            child: Material(
-              color: Colors.white,
-              child: InkWell(
-                onTap: () {
-                  onAppointment(appointment);
-                },
+    store.appointments.forEach((appointment) {
+      if (!appointment.isFinishedByDoctor) {
+        activeAppointments.add(appointment);
+      } else {
+        finishedAppointments.add(appointment);
+      }
+    });
+
+    List<Widget> list = [];
+    activeAppointments.forEach((appointment) {
+      list.add(buildAppointment(appointment));
+    });
+
+    if (finishedAppointments.length > 0) {
+      list.add(Row(
+        children: <Widget>[
+          Expanded(
+            child: Center(
+              child: Opacity(
+                opacity: 0.7,
                 child: Container(
-                  padding: EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.only(bottom: 5),
-                        child: Text(appointment.doctor.fullName,
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w500)),
-                      ),
-                      Opacity(
-                        opacity: 0.7,
-                        child: Container(
-                          margin: EdgeInsets.only(bottom: 5),
-                          child: Text(appointment.doctor.specialization.title,
-                              style: TextStyle(fontSize: 14)),
-                        ),
-                      ),
-                      Opacity(
-                        opacity: 0.7,
-                        child: Container(
-                          margin: EdgeInsets.only(bottom: 5),
-                          child: Text(appointment.formattedDateTime,
-                              style: TextStyle(fontSize: 14)),
-                        ),
-                      )
-                    ],
-                  ),
+                  margin: EdgeInsets.only(top: 15, bottom: 5),
+                  child: Text('Завершенные',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
                 ),
               ),
             ),
-          );
-        });
+          ),
+        ],
+      ));
+    }
+
+    finishedAppointments.forEach((appointment) {
+      list.add(buildAppointment(appointment));
+    });
+
+    return list;
+  }
+
+  Widget buildAppointment(Appointment appointment) {
+    return Container(
+      margin: EdgeInsets.only(top: 10),
+      child: Material(
+        color: Colors.white,
+        child: InkWell(
+          onTap: () {
+            onAppointment(appointment);
+          },
+          child: Container(
+            padding: EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(bottom: 8),
+                  child: Text(appointment.doctor.fullName,
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                ),
+                Opacity(
+                  opacity: 0.7,
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: Text(appointment.doctor.specialization.title,
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w400)),
+                  ),
+                ),
+                Opacity(
+                  opacity: 0.7,
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 5),
+                    child: Text('24 апреля 2019 в 21:00',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w300)),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    ;
   }
 
   @override
   Widget build(BuildContext context) {
+    ScopedModel.of<Store>(context, rebuildOnChange: true);
+
     return Scaffold(
       backgroundColor: AppColors.BACKGROUND_COLOR,
       appBar: AppBar(
@@ -124,15 +165,18 @@ class AppointmentsScreenState extends State<AppointmentsScreen> {
         backgroundColor: Colors.white,
         title: AppBarText(text: 'Записи'),
       ),
-      body: Center(
-        child: isLoading
-            ? Center(
-                child: Loader(),
-              )
-            : Container(
-                padding: EdgeInsets.only(left: 5, right: 5),
-                child: buildList()),
-      ),
+      body: isLoading
+          ? Center(
+              child: Loader(),
+            )
+          : Container(
+              padding: EdgeInsets.only(left: 5, right: 5, bottom: 10),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: buildList(),
+                ),
+              )),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.MAIN_COLOR,
         onPressed: onCreateAppointment,

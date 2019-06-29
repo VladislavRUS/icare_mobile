@@ -58,20 +58,17 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.BACKGROUND_COLOR,
       body: Container(
-        decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage('assets/mobile_bg.png'), fit: BoxFit.cover)),
         child: Stack(
           children: <Widget>[
             Positioned(
-              top: 220,
-              right: 50,
-              child: Container(
-                  width: 130,
-                  height: 130,
-                  child: Image.asset('assets/mobile_s.png')),
+              top: -40,
+              left: -5,
+              child: SizedBox(
+                  width: 350,
+                  height: 350,
+                  child: Image.asset('assets/mobile_combined.png')),
             ),
             Positioned(
               bottom: 250,
@@ -90,17 +87,18 @@ class LoginScreenState extends State<LoginScreen> {
               ),
             ),
             Positioned(
-              left: 0,
-              right: 0,
-              bottom: 40,
+              left: 20,
+              right: 20,
+              bottom: 20,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Container(
-                    child: BigButton(
-                      isLoading: isLoading,
-                      text: 'Войти через Госуслуги',
-                      onTap: onEnter,
+                  Expanded(
+                    child: Container(
+                      child: BigButton(
+                        isLoading: isLoading,
+                        text: 'Войти через Госуслуги',
+                        onTap: onEnter,
+                      ),
                     ),
                   ),
                 ],

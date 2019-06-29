@@ -10,6 +10,7 @@ class Appointment {
   String dateTimestamp;
   bool isConfirmedByUser;
   bool isFinishedByDoctor;
+  bool isPollFinishedByUser;
 
   get formattedDateTime {
     return DateFormat('dd-MM-yyyy HH:mm').format(
@@ -25,5 +26,6 @@ class Appointment {
     dateTimestamp = map['dateTimestamp'];
     isConfirmedByUser = map['isConfirmedByUser'];
     isFinishedByDoctor = map['isFinishedByDoctor'];
+    isPollFinishedByUser = map['isPollFinishedByUser'];
   }
 }

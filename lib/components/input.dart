@@ -48,7 +48,7 @@ class Input extends StatelessWidget {
               disabledBorder: InputBorder.none,
               border: InputBorder.none,
               contentPadding: EdgeInsets.all(12)),
-          style: TextStyle(fontSize: 12, color: AppColors.INPUT_TEXT_COLOR)),
+          style: TextStyle(fontSize: 14, color: AppColors.INPUT_TEXT_COLOR)),
     ));
 
     return children;
